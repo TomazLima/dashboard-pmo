@@ -1,4 +1,5 @@
 import streamlit as st
+from auth import login_user, logout
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -15,11 +16,21 @@ import os
 # ============================================
 
 st.set_page_config(
-    page_title="PMO Digital Telco - Llama",
+    page_title="Dashboard PMO",
     page_icon="📊",
-    layout="wide",
-    initial_sidebar_state="expanded"
+    layout="wide"
 )
+
+# Sistema de autenticação
+if not login_user():
+    st.stop()
+
+# Botão de logout no sidebar
+with st.sidebar:
+    logout()
+    st.markdown("---")
+
+
 
 # ============================================
 # 🦙 CONFIGURAÇÃO GROQ API (LLAMA 3.1) - MUDANÇA PRINCIPAL
