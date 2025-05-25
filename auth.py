@@ -16,7 +16,7 @@ def login_user():
     
     # Hash da senha (substitua 'sua_senha_aqui' pela senha desejada)
     # Para gerar o hash: print(make_hashes("sua_senha_aqui"))
-    SENHA_HASH = "d8f2fd7ed33f6d56372a95b7e16776f377f877f03976f549e90dc04980be6fdb"  # Você vai gerar isso
+    SENHA_HASH = "56ad85dd8e1b8e90af1d2dece16548897635a3f1f288c8d2042f6a68f9404196"  # Você vai gerar isso
     
     if 'authentication_status' not in st.session_state:
         st.session_state['authentication_status'] = False
