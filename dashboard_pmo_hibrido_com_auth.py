@@ -1097,7 +1097,7 @@ def main():
     # 🔐 VERIFICAÇÃO DE AUTENTICAÇÃO
     # ============================================
     
-    if not auth.verificar_autenticacao():
+    if not auth.login_user():
         return
     
     # ============================================
