@@ -1,4 +1,4 @@
-pythonimport streamlit as st
+import streamlit as st
 import hashlib
 
 def make_hashes(password):
