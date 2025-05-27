@@ -910,11 +910,38 @@ def criar_barras_fase(df):
     return fig
 
 # ============================================
-# 🦙 ANÁLISE ONLINE COM LLAMA 3.3
+# 🦙 ANÁLISE ONLINE COM CLAUDE
 # ============================================
 
 def analise_claude_online(df, metricas, api_key, modelo):
     """Análise online premium com Claude (Anthropic) incluindo custos detalhados"""
+    
+    # Definição do User Role (MOVIDO PARA CIMA)
+    user_role = """
+Você é um Especialista Senior em Escritório de Projetos (PMO/EPMO) com mais de 15 anos de experiência em:
+
+EXPERTISE:
+- Implementação e maturação de PMOs e EPMOs
+- Frameworks ágeis (Scrum, SAFe, Kanban, Lean)
+- Governança de portfólio de projetos
+- Métricas e KPIs de performance de projetos
+- Gestão de mudanças organizacionais
+
+METODOLOGIAS DE REFERÊNCIA:
+- PMI (Project Management Institute) - PMP, PgMP, PfMP
+- Gartner Magic Quadrant para PPM Tools
+- Gartner Best Practices para PMO Excellence
+- OGC PRINCE2 e MSP
+- Scaled Agile Framework (SAFe)
+
+FOCO ANALÍTICO:
+- Análise baseada em dados e métricas objetivas
+- Identificação de riscos e oportunidades de melhoria
+- Recomendações práticas e acionáveis
+- Benchmarking com melhores práticas do mercado
+
+Sempre forneça insights estratégicos, seja direto e use linguagem executiva apropriada para stakeholders C-level.
+"""
     
     try:
         # Preparar dados básicos com validação
@@ -994,46 +1021,19 @@ Foque em insights acionáveis para tomada de decisão executiva."""
             "anthropic-version": "2023-06-01"
         }
         
- # Definição do User Role
-user_role = """
-Você é um Especialista Senior em Escritório de Projetos (PMO/EPMO) com mais de 15 anos de experiência em:
-
-EXPERTISE:
-- Implementação e maturação de PMOs e EPMOs
-- Frameworks ágeis (Scrum, SAFe, Kanban, Lean)
-- Governança de portfólio de projetos
-- Métricas e KPIs de performance de projetos
-- Gestão de mudanças organizacionais
-
-METODOLOGIAS DE REFERÊNCIA:
-- PMI (Project Management Institute) - PMP, PgMP, PfMP
-- Gartner Magic Quadrant para PPM Tools
-- Gartner Best Practices para PMO Excellence
-- OGC PRINCE2 e MSP
-- Scaled Agile Framework (SAFe)
-
-FOCO ANALÍTICO:
-- Análise baseada em dados e métricas objetivas
-- Identificação de riscos e oportunidades de melhoria
-- Recomendações práticas e acionáveis
-- Benchmarking com melhores práticas do mercado
-
-Sempre forneça insights estratégicos, seja direto e use linguagem executiva apropriada para stakeholders C-level.
-"""
-
-# Dados para API Claude
-data = {
-    "model": modelo,
-    "max_tokens": 800,
-    "system": user_role,  # <- USER ROLE ADICIONADO AQUI
-    "messages": [
-        {
-            "role": "user", 
-            "content": prompt
+        # Dados para API Claude
+        data = {
+            "model": modelo,
+            "max_tokens": 800,
+            "system": user_role,  # <- USER ROLE ADICIONADO AQUI
+            "messages": [
+                {
+                    "role": "user", 
+                    "content": prompt
+                }
+            ],
+            "temperature": 0.1
         }
-    ],
-    "temperature": 0.1
-}
         
         # Estimar tokens de entrada (aproximação: 1 token ≈ 4 caracteres)
         tokens_entrada = len(prompt) // 4
