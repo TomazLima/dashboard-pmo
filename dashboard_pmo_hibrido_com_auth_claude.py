@@ -20,7 +20,7 @@ import auth
 # ============================================
 
 st.set_page_config(
-    page_title="PMO - Programa Digital Telco",
+    page_title="PMO-Digital Transformation Program",
     page_icon="📊",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -481,8 +481,8 @@ def calcular_metricas(df):
 def criar_sidebar(df, metricas):
     """Sidebar com configuração híbrida e novos indicadores"""
     
-    st.sidebar.title("🎯 PMO Digital Telco")
-    st.sidebar.markdown("**Programa Digital Telco**")
+    st.sidebar.title("🎯 PMO Digital Transformation Program")
+    st.sidebar.markdown("**Digital Transformation Program**")
     st.sidebar.markdown("*Modelo Premium: Claude + Offline*")
     
     # Configuração da análise híbrida
@@ -910,11 +910,38 @@ def criar_barras_fase(df):
     return fig
 
 # ============================================
-# 🦙 ANÁLISE ONLINE COM LLAMA 3.3
+# 🦙 ANÁLISE ONLINE COM CLAUDE
 # ============================================
 
 def analise_claude_online(df, metricas, api_key, modelo):
     """Análise online premium com Claude (Anthropic) incluindo custos detalhados"""
+    
+    # Definição do User Role (MOVIDO PARA CIMA)
+    user_role = """
+Você é um Especialista Senior em Escritório de Projetos (PMO/EPMO) com mais de 15 anos de experiência em:
+
+EXPERTISE:
+- Implementação e maturação de PMOs e EPMOs
+- Frameworks ágeis (Scrum, SAFe, Kanban, Lean)
+- Governança de portfólio de projetos
+- Métricas e KPIs de performance de projetos
+- Gestão de mudanças organizacionais
+
+METODOLOGIAS DE REFERÊNCIA:
+- PMI (Project Management Institute) - PMP, PgMP, PfMP
+- Gartner Magic Quadrant para PPM Tools
+- Gartner Best Practices para PMO Excellence
+- OGC PRINCE2 e MSP
+- Scaled Agile Framework (SAFe)
+
+FOCO ANALÍTICO:
+- Análise baseada em dados e métricas objetivas
+- Identificação de riscos e oportunidades de melhoria
+- Recomendações práticas e acionáveis
+- Benchmarking com melhores práticas do mercado
+
+Sempre forneça insights estratégicos, seja direto e use linguagem executiva apropriada para stakeholders C-level.
+"""
     
     try:
         # Preparar dados básicos com validação
@@ -960,7 +987,7 @@ def analise_claude_online(df, metricas, api_key, modelo):
             resp_resumo = {"Equipe": total}
         
         # Construir prompt especializado para Claude
-        prompt = f"""Analise este projeto PMO Digital Telco como especialista sênior:
+        prompt = f"""Analise este projeto PMO Digital Transformation Program como especialista sênior:
 
 SITUAÇÃO ATUAL DO PROJETO:
 • Total de atividades: {total}
@@ -998,6 +1025,7 @@ Foque em insights acionáveis para tomada de decisão executiva."""
         data = {
             "model": modelo,
             "max_tokens": 800,
+            "system": user_role,  # <- USER ROLE ADICIONADO AQUI
             "messages": [
                 {
                     "role": "user", 
@@ -1046,7 +1074,7 @@ Foque em insights acionáveis para tomada de decisão executiva."""
         custo_total = custo_input + custo_output
         
         # Formatação da análise
-        analise_completa = f"**🧠 ANÁLISE CLAUDE {modelo.upper()} - PMO DIGITAL TELCO:**\n\n{analise}"
+        analise_completa = f"**🧠 ANÁLISE CLAUDE {modelo.upper()} - PMO DIGITAL TRANSFORMATION PROGRAM:**\n\n{analise}"
         
         return {
             "analise": analise_completa,
@@ -1263,7 +1291,7 @@ def main():
     metricas = calcular_metricas(df)
     
     # Título principal
-    st.title("📊 PMO - Programa Digital Telco")
+    st.title("📊 PMO - Digital Transformation Program")
     st.markdown("**Modelo Premium: Online (Claude) + Offline Avançado**")
     
     # Sidebar
