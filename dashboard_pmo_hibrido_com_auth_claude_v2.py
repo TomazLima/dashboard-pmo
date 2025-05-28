@@ -429,12 +429,12 @@ def carregar_dados():
 
 def carregar_dados_exemplo():
     """Dados de exemplo com novos campos"""
-dados_exemplo = [
-    {"id": "1.1", "fase": "Marco Inicial", "atividade": "Kick-Off", "status": "Concluído", "responsavel": "OS", "data_prevista": "2025-02-12", "progresso": 100, "peso": 1.0, "observacoes": "Realizado", "delivery": "Sprint 1", "Dimensões": "Processos"},
-    {"id": "2.1", "fase": "Fase 1", "atividade": "Diagnóstico", "status": "Aguardando Validação", "responsavel": "DT", "data_prevista": "2025-04-07", "progresso": 80, "peso": 0.8, "observacoes": "Aguarda validação", "delivery": "Sprint 2", "Dimensões": "Tecnologia"},
-    {"id": "2.2", "fase": "Fase 1", "atividade": "Análise Gaps", "status": "Em Andamento", "responsavel": "OS", "data_prevista": "2025-05-30", "progresso": 50, "peso": 0.5, "observacoes": "Em progresso", "delivery": "Sprint 3", "Dimensões": "Pessoas"},
-    {"id": "3.1", "fase": "Fase 2", "atividade": "Estruturação", "status": "Identificado", "responsavel": "A Definir", "data_prevista": "2025-06-30", "progresso": 0, "peso": 0.0, "observacoes": "Pendente", "delivery": "Sprint 4", "Dimensões": "Governança"},
-]
+    dados_exemplo = [
+        {"id": "1.1", "fase": "Marco Inicial", "atividade": "Kick-Off", "status": "Concluído", "responsavel": "OS", "data_prevista": "2025-02-12", "progresso": 100, "peso": 1.0, "observacoes": "Realizado", "delivery": "Sprint 1", "Dimensões": "Processos"},
+        {"id": "2.1", "fase": "Fase 1", "atividade": "Diagnóstico", "status": "Aguardando Validação", "responsavel": "DT", "data_prevista": "2025-04-07", "progresso": 80, "peso": 0.8, "observacoes": "Aguarda validação", "delivery": "Sprint 2", "Dimensões": "Tecnologia"},
+        {"id": "2.2", "fase": "Fase 1", "atividade": "Análise Gaps", "status": "Em Andamento", "responsavel": "OS", "data_prevista": "2025-05-30", "progresso": 50, "peso": 0.5, "observacoes": "Em progresso", "delivery": "Sprint 3", "Dimensões": "Pessoas"},
+        {"id": "3.1", "fase": "Fase 2", "atividade": "Estruturação", "status": "Identificado", "responsavel": "A Definir", "data_prevista": "2025-06-30", "progresso": 0, "peso": 0.0, "observacoes": "Pendente", "delivery": "Sprint 4", "Dimensões": "Governança"},
+    ]
     return pd.DataFrame(dados_exemplo)
 
 def calcular_metricas(df):
