@@ -435,7 +435,7 @@ def carregar_dados_exemplo():
         {"id": "2.2", "fase": "Fase 1", "atividade": "Análise Gaps", "status": "Em Andamento", "responsavel": "OS", "data_prevista": "2025-05-30", "progresso": 50, "peso": 0.5, "observacoes": "Em progresso", "delivery": "Sprint 3", "Dimensões": "Pessoas"},
         {"id": "3.1", "fase": "Fase 2", "atividade": "Estruturação", "status": "Identificado", "responsavel": "A Definir", "data_prevista": "2025-06-30", "progresso": 0, "peso": 0.0, "observacoes": "Pendente", "delivery": "Sprint 4", "Dimensões": "Governança"},
     ]
-    return pd.DataFrame(dados_exemplo)
+    return pd.DataFrame(dados_exemplo)  # 🔧 CORRIGIDO: alinhado com dados_exemplo
 
 def calcular_metricas(df):
     """Calcula métricas incluindo novos indicadores"""
@@ -574,28 +574,28 @@ def criar_gauge_aderencia(df):
     
     # Determinar cor da barra
     if aderencia >= 90:
-        cor_barra = "#28a745"  # Verde
+        cor_barra = "#E20074"      # Magenta principal
         status = "Excelente"
-        cor_status = "#28a745"
+        cor_status = "#E20074"
     elif aderencia >= 70:
-        cor_barra = "#ffc107"  # Amarelo
+        cor_barra = "#F066A7"      # Magenta claro
         status = "Bom"
-        cor_status = "#ffc107"
+        cor_status = "#F066A7"
     elif aderencia >= 50:
-        cor_barra = "#fd7e14"  # Laranja
+        cor_barra = "#F899C9"      # Magenta pastel
         status = "Atenção"
-        cor_status = "#fd7e14"
+        cor_status = "#F899C9"
     else:
-        cor_barra = "#dc3545"  # Vermelho
+        cor_barra = "#8E8E93"      # Cinza
         status = "Crítico"
-        cor_status = "#dc3545"
+        cor_status = "#8E8E93"
     
     fig = go.Figure(go.Indicator(
         mode="gauge+number",
         value=aderencia,
         domain={'x': [0, 1], 'y': [0, 1]},
         title={'text': f"⏰ Aderência aos Prazos<br><span style='font-size:0.6em; color:gray'>% de atividades dentro do prazo</span>", 'font': {'size': 18}},
-        number={'font': {'size': 48, 'color': '#1e3a8a'}, 'suffix': '%'},  # Azul escuro
+        number={'font': {'size': 48, 'color': '#E20074'}, 'suffix': '%'},  # Azul escuro
         gauge={
             'axis': {'range': [None, 100], 'tickwidth': 1},
             'bar': {'color': cor_barra},
@@ -603,10 +603,10 @@ def criar_gauge_aderencia(df):
             'borderwidth': 2,
             'bordercolor': "gray",
             'steps': [
-                {'range': [0, 50], 'color': '#ffe6e6'},    # Vermelho claro
-                {'range': [50, 70], 'color': '#fff9e6'},   # Amarelo muito claro
-                {'range': [70, 90], 'color': '#fff3cd'},   # Amarelo claro
-                {'range': [90, 100], 'color': '#e6f7e6'}   # Verde claro
+                {'range': [0, 50], 'color': '#F2F2F7'},    # Cinza muito claro
+                {'range': [50, 70], 'color': '#FCCCEB'},   # Magenta muito claro
+                {'range': [70, 90], 'color': '#F899C9'},   # Magenta pastel
+                {'range': [90, 100], 'color': '#F066A7'}   # Magenta claro
             ],
             'threshold': {
                 'line': {'color': "#1e3a8a", 'width': 4},  # Azul escuro
@@ -639,7 +639,7 @@ def criar_grafico_situacao_prazos(df):
     # Dados para o gráfico
     situacoes = ['Atrasadas', 'Vencendo (7 dias)', 'Futuras']
     valores = [cronograma['atrasadas'], cronograma['vencendo_semana'], cronograma['futuras']]
-    cores = ['#F44336', '#FF9800', '#4CAF50']
+    cores = ['#8E8E93', '#F066A7', '#E20074']  # Cinza, Magenta claro, Magenta principal
     
     fig = go.Figure([go.Bar(
         x=situacoes,
@@ -725,7 +725,7 @@ def criar_roadmap_planejado_vs_realizado(df):
                 x=[data_inicio, data_fim],
                 y=[fase, fase],
                 mode='lines',
-                line=dict(width=20, color='rgba(180, 180, 180, 0.7)'),
+                line=dict(width=20, color='rgba(199, 199, 204, 0.7)'),
                 name='Planejado' if i == 0 else '',
                 showlegend=True if i == 0 else False,
                 hovertemplate=f'<b>Planejado</b><br>Fase: {fase}<br>Período completo<extra></extra>'
@@ -738,13 +738,13 @@ def criar_roadmap_planejado_vs_realizado(df):
             
             # Determinar cor baseada no progresso
             if progresso >= 80:
-                cor_progresso = '#28a745'  # Verde
+                cor_progresso = '#E20074'  # Magenta principal
                 status = 'No prazo'
             elif progresso >= 50:
-                cor_progresso = '#ffc107'  # Amarelo
+                cor_progresso = '#F066A7'  # Magenta claro
                 status = 'Atenção'
             else:
-                cor_progresso = '#dc3545'  # Vermelho
+                cor_progresso = '#8E8E93'  # Cinza
                 status = 'Atrasado'
             
             # Linha colorida - progresso realizado
@@ -777,7 +777,7 @@ def criar_roadmap_planejado_vs_realizado(df):
             fig.add_vline(
                 x=hoje,
                 line_dash="dash",
-                line_color="red",
+                line_color="#E20074",  # Magenta em vez de red
                 line_width=3,
                 annotation_text="HOJE",
                 annotation_position="top",
@@ -1264,48 +1264,114 @@ def widget_analise_hibrida(df, metricas, api_key, modelo):
                 st.info("💡 **Dica:** Timeout na requisição. Tente novamente ou use modelo mais rápido (Haiku).")
 
 # ============================================
-# 📱 INTERFACE PRINCIPAL
+# 📊 GRÁFICOS ORIGINAIS (MANTIDOS) - CORRIGIDOS
 # ============================================
-def criar_grafico_dimensoes(df):
-    """Cria gráfico de distribuição por Dimensões"""
+
+def criar_rosca_status(df):
+    """Cria gráfico de rosca para status - MELHORADO"""
     
-    if df.empty or 'Dimensões' not in df.columns:
-        return go.Figure().add_annotation(text="Campo 'Dimensões' não encontrado", x=0.5, y=0.5)
+    if df.empty:
+        return go.Figure().add_annotation(text="Nenhum dado disponível", x=0.5, y=0.5)
     
-    # Remover valores nulos
-    df_dimensoes = df.dropna(subset=['Dimensões'])
+    status_counts = df['status'].value_counts()
     
-    if df_dimensoes.empty:
-        return go.Figure().add_annotation(text="Nenhuma dimensão definida", x=0.5, y=0.5)
+    cores_status = {
+        'Concluído': '#E20074',
+        'Em Andamento': '#F066A7',
+        'Aguardando Validação': '#F899C9',
+        'Identificado': '#8E8E93'
+    }
     
-    # Contar atividades por dimensão
-    dimensoes_count = df_dimensoes['Dimensões'].value_counts().reset_index()
-    dimensoes_count.columns = ['Dimensões', 'Quantidade']
+    colors = [cores_status.get(status, '#CCCCCC') for status in status_counts.index]
     
-    # Cores personalizadas para dimensões
-    cores_dimensoes = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2']
-    
-    # Criar gráfico de barras horizontal
-    fig = go.Figure([go.Bar(
-        y=dimensoes_count['Dimensões'],
-        x=dimensoes_count['Quantidade'],
-        orientation='h',
-        marker_color=cores_dimensoes[:len(dimensoes_count)],
-        text=dimensoes_count['Quantidade'],
-        textposition='auto',
-        hovertemplate='<b>%{y}</b><br>Atividades: %{x}<br><extra></extra>'
+    fig = go.Figure(data=[go.Pie(
+        labels=status_counts.index,
+        values=status_counts.values,
+        hole=0.6,  # 🔧 ALTERADO: de 0.4 para 0.6 (mais fino)
+        marker_colors=colors,
+        textinfo='label+percent',  # 🔧 ALTERADO: removido 'value' para melhor legibilidade
+        textfont_size=10,  # 🔧 ALTERADO: tamanho da fonte reduzido
+        textposition="outside",  # 🔧 NOVO: labels fora do gráfico
+        hovertemplate='<b>%{label}</b><br>Quantidade: %{value}<br>Percentual: %{percent}<extra></extra>',
+        # 🔧 NOVO: Configurar pull para destacar fatias
+        pull=[0.05 if status == 'Concluído' else 0.02 for status in status_counts.index]
     )])
     
+    # Texto no centro
+    total = len(df)
+    conclusao = round((df['peso'].sum() / total) * 100)
+    
+    fig.add_annotation(
+        text=f"<b style='font-size:20px'>{total}</b><br><span style='font-size:12px'>ATIVIDADES</span><br><br><b style='font-size:18px'>{conclusao}%</b><br><span style='font-size:11px'>CONCLUSÃO</span>",
+        x=0.5, y=0.5,
+        font_size=14,
+        showarrow=False
+    )
+    
     fig.update_layout(
-        title='🎯 Distribuição por Dimensões',
-        xaxis_title='Número de Atividades',
-        yaxis_title='Dimensões',
-        height=400,
-        margin=dict(t=60, b=40, l=120, r=40)
+        title='🍩 Status das Atividades',
+        showlegend=True,
+        height=450,  # 🔧 ALTERADO: altura aumentada para acomodar labels externos
+        margin=dict(t=60, b=60, l=60, r=60),  # 🔧 ALTERADO: margens aumentadas
+        legend=dict(
+            orientation="v",
+            yanchor="middle",
+            y=0.5,
+            xanchor="left",
+            x=1.05
+        )
     )
     
     return fig
+
+def criar_barras_fase(df):
+    """Cria gráfico de barras por fase"""
     
+    if df.empty:
+        return go.Figure().add_annotation(text="Nenhum dado disponível", x=0.5, y=0.5)
+    
+    fase_stats = df.groupby('fase').agg({
+        'peso': ['sum', 'count']
+    }).round(1)
+    
+    fase_stats.columns = ['peso_total', 'quantidade']
+    fase_stats['conclusao_fase'] = (fase_stats['peso_total'] / fase_stats['quantidade'] * 100).round(1)
+    
+    # Cores por nível
+    cores = []
+    for conclusao in fase_stats['conclusao_fase']:
+        if conclusao >= 70:
+            cores.append('#E20074')  # Magenta principal
+        elif conclusao >= 30:
+            cores.append('#F066A7')  # Magenta claro
+        else:
+            cores.append('#8E8E93')  # Cinza
+    
+    fig = go.Figure([go.Bar(
+        x=fase_stats['conclusao_fase'],
+        y=fase_stats.index,
+        orientation='h',
+        marker_color=cores,
+        text=[f'{c:.0f}%' for c in fase_stats['conclusao_fase']],
+        textposition='inside'
+    )])
+    
+    fig.update_layout(
+        title='📊 Progresso por Fase',
+        xaxis_title='Percentual de Conclusão (%)',
+        height=400,
+        margin=dict(t=60, b=40, l=200, r=40)
+    )
+    
+    fig.add_vline(x=50, line_dash="dash", line_color="gray", 
+                  annotation_text="Meta 50%")
+    
+    return fig
+
+# ============================================
+# 🔧 NOVO: GRÁFICO DE DIMENSÕES (VERSÃO ÚNICA)
+# ============================================
+
 def criar_grafico_dimensoes(df):
     """Cria gráfico de distribuição por Dimensões"""
     
@@ -1323,7 +1389,16 @@ def criar_grafico_dimensoes(df):
     dimensoes_count.columns = ['Dimensões', 'Quantidade']
     
     # Cores personalizadas para dimensões
-    cores_dimensoes = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2']
+
+    cores_dimensoes = [
+        '#E20074',  # Magenta oficial Deutsche Telekom
+        '#F066A7',  # Magenta claro
+        '#F899C9',  # Magenta pastel
+        '#FCCCEB',  # Magenta muito claro
+        '#8E8E93',  # Cinza moderno (iOS style)
+        '#C7C7CC',  # Cinza claro
+        '#F2F2F7'   # Cinza muito claro
+    ]
     
     # Criar gráfico de barras horizontal
     fig = go.Figure([go.Bar(
@@ -1346,8 +1421,564 @@ def criar_grafico_dimensoes(df):
     
     return fig
 
+# ============================================
+# 🔧 FUNÇÃO AUXILIAR PARA SITUAÇÃO PRAZO
+# ============================================
+
+def situacao_prazo_com_cores(row):
+    """Função para determinar situação do prazo com cores corretas"""
+    if row['status'] == 'Concluído':
+        return '✅ Concluído'
+    elif pd.isna(row['dias_para_prazo']) or row['dias_para_prazo'] is None:
+        return '⚪ Sem data'
+    elif row['dias_para_prazo'] < 0:
+        # 🔧 ALTERADO: Ícone vermelho para atraso
+        return f'🔴 Atrasado {abs(int(row["dias_para_prazo"]))} dias'
+    elif row['dias_para_prazo'] <= 7:
+        return f'🟡 Vence em {int(row["dias_para_prazo"])} dias'
+    else:
+        return f'🟢 {int(row["dias_para_prazo"])} dias'
+
+# ============================================
+# 🔧 ROADMAP MELHORADO COM LINHAS
+# ============================================
+
+def criar_roadmap_planejado_vs_realizado(df):
+    """Cria roadmap comparando planejado vs realizado por fase - MELHORADO"""
+    
+    if df.empty:
+        return go.Figure().add_annotation(text="Nenhum dado disponível", x=0.5, y=0.5)
+    
+    try:
+        # Processar dados com verificações robustas
+        df_processed = analisador.processar_datas(df)
+        
+        if 'data_prevista' not in df_processed.columns:
+            return go.Figure().add_annotation(text="Campo data_prevista não encontrado", x=0.5, y=0.5)
+        
+        # Remover linhas com datas nulas
+        df_valid = df_processed.dropna(subset=['data_prevista']).copy()
+        
+        if df_valid.empty:
+            return go.Figure().add_annotation(text="Nenhuma data válida encontrada", x=0.5, y=0.5)
+        
+        # Converter explicitamente para datetime
+        df_valid['data_dt'] = pd.to_datetime(df_valid['data_prevista'], errors='coerce')
+        df_valid = df_valid.dropna(subset=['data_dt'])
+        
+        if df_valid.empty:
+            return go.Figure().add_annotation(text="Erro na conversão de datas", x=0.5, y=0.5)
+        
+        # Agrupar por fase
+        fases_resumo = []
+        
+        for fase in df_valid['fase'].unique():
+            df_fase = df_valid[df_valid['fase'] == fase]
+            
+            # Calcular datas min/max da fase
+            data_inicio = df_fase['data_dt'].min()
+            data_fim = df_fase['data_dt'].max()
+            
+            # Calcular progresso da fase
+            total_atividades = len(df_fase)
+            peso_total = df_fase['peso'].sum()
+            progresso_fase = (peso_total / total_atividades) * 100 if total_atividades > 0 else 0
+            
+            fases_resumo.append({
+                'fase': fase,
+                'data_inicio': data_inicio,
+                'data_fim': data_fim,
+                'progresso': min(progresso_fase, 100),  # Limitar a 100%
+                'total_atividades': total_atividades
+            })
+        
+        if not fases_resumo:
+            return go.Figure().add_annotation(text="Nenhuma fase processada", x=0.5, y=0.5)
+        
+        # Criar o gráfico
+        fig = go.Figure()
+        
+        for i, fase_info in enumerate(fases_resumo):
+            fase = fase_info['fase']
+            data_inicio = fase_info['data_inicio']
+            data_fim = fase_info['data_fim']
+            progresso = fase_info['progresso']
+            
+            # Linha cinza - cronograma planejado (100%)
+            fig.add_trace(go.Scatter(
+                x=[data_inicio, data_fim],
+                y=[fase, fase],
+                mode='lines',
+                line=dict(width=20, color='rgba(180, 180, 180, 0.7)'),
+                name='Planejado' if i == 0 else '',
+                showlegend=True if i == 0 else False,
+                hovertemplate=f'<b>Planejado</b><br>Fase: {fase}<br>Período completo<extra></extra>'
+            ))
+            
+            # Calcular ponto final do progresso realizado
+            duracao_total = (data_fim - data_inicio).total_seconds()
+            duracao_progresso = duracao_total * (progresso / 100)
+            data_progresso = data_inicio + pd.Timedelta(seconds=duracao_progresso)
+            
+            # Determinar cor baseada no progresso
+            if progresso >= 80:
+                cor_progresso = '#28a745'  # Verde
+                status = 'No prazo'
+            elif progresso >= 50:
+                cor_progresso = '#ffc107'  # Amarelo
+                status = 'Atenção'
+            else:
+                cor_progresso = '#dc3545'  # Vermelho
+                status = 'Atrasado'
+            
+            # Linha colorida - progresso realizado
+            fig.add_trace(go.Scatter(
+                x=[data_inicio, data_progresso],
+                y=[fase, fase],
+                mode='lines',
+                line=dict(width=20, color=cor_progresso),
+                name='Realizado' if i == 0 else '',
+                showlegend=True if i == 0 else False,
+                hovertemplate=f'<b>Realizado</b><br>Fase: {fase}<br>Progresso: {progresso:.1f}%<br>Status: {status}<extra></extra>'
+            ))
+            
+            # Marcador com percentual
+            fig.add_trace(go.Scatter(
+                x=[data_progresso],
+                y=[fase],
+                mode='markers+text',
+                marker=dict(size=15, color=cor_progresso, symbol='circle'),
+                text=[f'{progresso:.0f}%'],
+                textposition="middle right",
+                textfont=dict(size=12, color='black', family='Arial Black'),
+                showlegend=False,
+                hovertemplate=f'<b>{fase}</b><br>Progresso atual: {progresso:.1f}%<extra></extra>'
+            ))
+        
+        # 🔧 NOVO: Adicionar linha vertical para "HOJE"
+        try:
+            hoje = pd.Timestamp.now()
+            fig.add_vline(
+                x=hoje,
+                line_dash="dash",
+                line_color="red",
+                line_width=3,
+                annotation_text="HOJE",
+                annotation_position="top",
+                annotation_font_size=12,
+                annotation_font_color="#E20074"
+            )
+        except:
+            pass
+        
+        # 🔧 NOVO: Calcular e adicionar linha de previsão de término
+        try:
+            # Calcular previsão baseada no progresso atual
+            previsao_projeto = analisador.prever_conclusao_projeto(df)
+            if previsao_projeto and previsao_projeto['data_prevista']:
+                data_previsao = pd.Timestamp(previsao_projeto['data_prevista'])
+                
+                fig.add_vline(
+                    x=data_previsao,
+                    line_dash="dot",
+                    line_color="blue",
+                    line_width=2,
+                    annotation_text="PREVISÃO<br>TÉRMINO",
+                    annotation_position="top",
+                    annotation_font_size=10,
+                    annotation_font_color="blue"
+                )
+        except Exception as e:
+            # Se não conseguir calcular a previsão, não adiciona a linha
+            pass
+        
+        # Layout do gráfico
+        fig.update_layout(
+            title='🗺️ Roadmap: Planejado vs Realizado (com Linha Atual e Previsão)',
+            height=400,
+            margin=dict(t=80, b=40, l=200, r=100),
+            xaxis_title="Cronograma",
+            yaxis_title="Fases",
+            legend=dict(
+                orientation="h",
+                yanchor="bottom",
+                y=1.02,
+                xanchor="center",
+                x=0.5
+            ),
+            hovermode='closest'
+        )
+        
+        return fig
+        
+    except Exception as e:
+        error_msg = f"Erro ao criar roadmap: {str(e)}"
+        return go.Figure().add_annotation(
+            text="Erro no processamento do roadmap<br>Verifique os dados de entrada", 
+            x=0.5, y=0.5,
+            font_size=14
+        )
+
+# ============================================
+# 🦙 ANÁLISE ONLINE COM CLAUDE
+# ============================================
+
+def analise_claude_online(df, metricas, api_key, modelo):
+    """Análise online premium com Claude (Anthropic) incluindo custos detalhados"""
+    
+    # Definição do User Role (MOVIDO PARA CIMA)
+    user_role = """
+Você é um Especialista Senior em Escritório de Projetos (PMO/EPMO) com mais de 15 anos de experiência em:
+
+EXPERTISE:
+- Implementação e maturação de PMOs e EPMOs
+- Frameworks ágeis (Scrum, SAFe, Kanban, Lean)
+- Governança de portfólio de projetos
+- Métricas e KPIs de performance de projetos
+- Gestão de mudanças organizacionais
+
+METODOLOGIAS DE REFERÊNCIA:
+- PMI (Project Management Institute) - PMP, PgMP, PfMP
+- Gartner Magic Quadrant para PPM Tools
+- Gartner Best Practices para PMO Excellence
+- OGC PRINCE2 e MSP
+- Scaled Agile Framework (SAFe)
+
+FOCO ANALÍTICO:
+- Análise baseada em dados e métricas objetivas
+- Identificação de riscos e oportunidades de melhoria
+- Recomendações práticas e acionáveis
+- Benchmarking com melhores práticas do mercado
+
+Sempre forneça insights estratégicos, seja direto e use linguagem executiva apropriada para stakeholders C-level.
+"""
+    
+    try:
+        # Preparar dados básicos com validação
+        total = len(df) if not df.empty else 0
+        if total == 0:
+            return {"erro": "Nenhum dado disponível para análise", "ok": False}
+        
+        # Calcular conclusão de forma segura
+        try:
+            conclusao = int((df['peso'].sum() / total) * 100) if total > 0 else 0
+        except:
+            conclusao = 0
+        
+        # Novos dados de cronograma com tratamento de erro
+        try:
+            cronograma = analisador.calcular_indicadores_cronograma(df)
+        except:
+            cronograma = {
+                'aderencia_prazo': 0, 'atrasadas': 0, 'vencendo_semana': 0,
+                'dias_atraso_medio': 0, 'sla_validacao': 0
+            }
+        
+        # Previsão com tratamento de erro
+        try:
+            previsao = analisador.prever_conclusao_projeto(df)
+            previsao_texto = f"Data prevista: {previsao['data_prevista'].strftime('%d/%m/%Y')}" if previsao else "Sem previsão"
+            if previsao and previsao['dias_adicao'] > 0:
+                previsao_texto += f" (Atraso previsto: {previsao['dias_adicao']} dias)"
+        except:
+            previsao_texto = "Previsão indisponível"
+        
+        # Status com limpeza
+        try:
+            status_resumo = dict(metricas['status_counts'].head(5))  # Top 5 status
+        except:
+            status_resumo = {"Em processamento": total}
+        
+        # Análise de responsáveis
+        try:
+            resp_stats = df['responsavel'].value_counts().head(5)
+            resp_resumo = dict(resp_stats)
+        except:
+            resp_resumo = {"Equipe": total}
+        
+        # Construir prompt especializado para Claude
+        prompt = f"""Analise este projeto PMO Digital Transformation Program como especialista sênior:
+
+SITUAÇÃO ATUAL DO PROJETO:
+• Total de atividades: {total}
+• Progresso geral: {conclusao}%
+• Distribuição por status: {status_resumo}
+• Distribuição por responsável: {resp_resumo}
+
+INDICADORES DE CRONOGRAMA:
+• Aderência aos prazos: {cronograma['aderencia_prazo']}%
+• Atividades atrasadas: {cronograma['atrasadas']}
+• Atividades vencendo (7 dias): {cronograma['vencendo_semana']}
+• Média de atraso: {cronograma['dias_atraso_medio']} dias
+• SLA de validação: {cronograma['sla_validacao']} dias
+
+PREVISÕES:
+• {previsao_texto}
+
+Como especialista PMO sênior, forneça uma análise executiva com:
+
+1. DIAGNÓSTICO CRÍTICO (2-3 pontos principais)
+2. RISCOS IMINENTES (2 riscos priorizados)
+3. AÇÕES ESTRATÉGICAS (3 ações específicas com prazo)
+4. INDICADORES A MONITORAR (2 KPIs críticos)
+
+Foque em insights acionáveis para tomada de decisão executiva."""
+        
+        # Headers para API da Anthropic
+        headers = {
+            "Content-Type": "application/json",
+            "X-API-Key": api_key.strip(),
+            "anthropic-version": "2023-06-01"
+        }
+        
+        # Dados para API Claude
+        data = {
+            "model": modelo,
+            "max_tokens": 800,
+            "system": user_role,  # <- USER ROLE ADICIONADO AQUI
+            "messages": [
+                {
+                    "role": "user", 
+                    "content": prompt
+                }
+            ],
+            "temperature": 0.1
+        }
+        
+        # Estimar tokens de entrada (aproximação: 1 token ≈ 4 caracteres)
+        tokens_entrada = len(prompt) // 4
+        
+        # Chamada para API Anthropic
+        response = requests.post(
+            "https://api.anthropic.com/v1/messages",
+            headers=headers,
+            json=data,
+            timeout=45
+        )
+        
+        # Verificar resposta
+        if response.status_code != 200:
+            try:
+                error_detail = response.json()
+                return {"erro": f"Claude API erro {response.status_code}: {error_detail.get('error', {}).get('message', 'Erro desconhecido')}", "ok": False}
+            except:
+                return {"erro": f"Claude API erro {response.status_code}: Resposta inválida", "ok": False}
+        
+        resultado = response.json()
+        analise = resultado['content'][0]['text']
+        
+        # Extrair informações de uso para cálculo de custo
+        usage = resultado.get('usage', {})
+        tokens_entrada_real = usage.get('input_tokens', tokens_entrada)
+        tokens_saida = usage.get('output_tokens', 200)
+        
+        # Calcular custo baseado no modelo
+        custos_modelo = {
+            "claude-3-haiku-20240307": {"input": 0.25, "output": 1.25},      # $/1M tokens
+            "claude-3-sonnet-20240229": {"input": 3.0, "output": 15.0},      # $/1M tokens  
+            "claude-3-opus-20240229": {"input": 15.0, "output": 75.0}        # $/1M tokens
+        }
+        
+        custo_input = (tokens_entrada_real / 1000000) * custos_modelo[modelo]["input"]
+        custo_output = (tokens_saida / 1000000) * custos_modelo[modelo]["output"]
+        custo_total = custo_input + custo_output
+        
+        # Formatação da análise
+        analise_completa = f"**🧠 ANÁLISE CLAUDE {modelo.upper()} - PMO DIGITAL TRANSFORMATION PROGRAM:**\n\n{analise}"
+        
+        return {
+            "analise": analise_completa,
+            "custo_total": custo_total,
+            "custo_input": custo_input,
+            "custo_output": custo_output,
+            "tokens_entrada": tokens_entrada_real,
+            "tokens_saida": tokens_saida,
+            "modelo": modelo,
+            "modo": "claude-online",
+            "ok": True
+        }
+            
+    except requests.exceptions.Timeout:
+        return {"erro": "Timeout na API Claude - tente novamente", "ok": False}
+    except requests.exceptions.ConnectionError:
+        return {"erro": "Erro de conexão com API Claude", "ok": False}
+    except Exception as e:
+        return {"erro": f"Erro interno: {str(e)}", "ok": False}
+
+# ============================================
+# 🧠 WIDGET DE ANÁLISE HÍBRIDA
+# ============================================
+
+def widget_analise_hibrida(df, metricas, api_key, modelo):
+    """Widget para análise híbrida (online Claude + offline avançado)"""
+    
+    st.markdown("---")
+    st.subheader("🤖 AI Insights Premium (Claude) + Versão Offline")
+    
+    col1, col2, col3 = st.columns([2, 1, 1])
+    
+    with col1:
+        # Botões para análise
+        col_online, col_offline = st.columns(2)
+        
+        with col_online:
+            if api_key:
+                modelo_nome = modelo.split('-')[1].title() if modelo else "Claude"
+                if st.button(f"🧠 Claude {modelo_nome}", type="primary"):
+                    with st.spinner(f"🧠 Claude {modelo_nome} analisando projeto..."):
+                        resultado = analise_claude_online(df, metricas, api_key, modelo)
+                    st.session_state['analise_resultado'] = resultado
+            else:
+                st.button("🧠 Claude Premium", disabled=True, help="API Key da Anthropic necessária")
+        
+        with col_offline:
+            if st.button("🔧 Análise Offline", type="secondary"):
+                with st.spinner("🔧 Processando análise avançada..."):
+                    resultado = analisador.analise_completa_com_cronograma(df, metricas)
+                st.session_state['analise_resultado'] = resultado
+    
+    with col2:
+        modo = st.session_state.get('analise_resultado', {}).get('modo', 'N/A')
+        if modo == 'claude-online':
+            modelo_usado = st.session_state.get('analise_resultado', {}).get('modelo', 'N/A')
+            st.metric("Modelo", modelo_usado.split('-')[1].title() if modelo_usado != 'N/A' else 'N/A')
+        else:
+            st.metric("Modo", modo.replace('-', ' ').title() if modo != 'N/A' else 'N/A')
+    
+    with col3:
+        if 'analise_resultado' in st.session_state and st.session_state['analise_resultado'].get('modo') == 'claude-online':
+            custo = st.session_state['analise_resultado'].get('custo_total', 0)
+            st.metric("Custo", f"${custo:.4f}" if custo > 0 else "Calculando...")
+        else:
+            st.metric("Custo", "ZERO 💰")
+    
+    # Exibir resultado da análise
+    if 'analise_resultado' in st.session_state:
+        resultado = st.session_state['analise_resultado']
+        
+        if resultado.get("ok"):
+            
+            # Para análise online (Claude)
+            if resultado.get("modo") == "claude-online":
+                st.success("✅ **Análise Claude Concluída:**")
+                st.markdown(resultado["analise"])
+                
+                # Mostrar detalhes de custo
+                with st.expander("💰 Detalhes de Custo da Análise", expanded=False):
+                    col1, col2, col3, col4 = st.columns(4)
+                    
+                    with col1:
+                        st.metric(
+                            "Tokens Entrada", 
+                            f"{resultado.get('tokens_entrada', 0):,}"
+                        )
+                    
+                    with col2:
+                        st.metric(
+                            "Tokens Saída", 
+                            f"{resultado.get('tokens_saida', 0):,}"
+                        )
+                    
+                    with col3:
+                        st.metric(
+                            "Custo Entrada", 
+                            f"${resultado.get('custo_input', 0):.5f}"
+                        )
+                    
+                    with col4:
+                        st.metric(
+                            "Custo Saída", 
+                            f"${resultado.get('custo_output', 0):.5f}"
+                        )
+                    
+                    # Resumo de custo
+                    custo_total = resultado.get('custo_total', 0)
+                    modelo_usado = resultado.get('modelo', 'N/A')
+                    
+                    st.info(f"""
+                    **📊 Resumo da Análise:**
+                    - **Modelo:** {modelo_usado}
+                    - **Custo Total:** ${custo_total:.5f} (~R$ {custo_total * 5.50:.3f})
+                    - **Eficiência:** {resultado.get('tokens_saida', 0) / max(resultado.get('tokens_entrada', 1), 1):.2f} tokens saída/entrada
+                    """)
+                
+                st.caption(f"🧠 Powered by Claude {modelo.split('-')[1].title() if modelo else ''} | Análise Premium")
+            
+            # Para análise offline avançada
+            else:
+                # Score de saúde
+                score = resultado.get('score_saude', 0)
+                if score >= 80:
+                    st.success(f"✅ **Score de Saúde: {score}/100** - Projeto saudável")
+                elif score >= 60:
+                    st.warning(f"🟡 **Score de Saúde: {score}/100** - Atenção necessária")
+                else:
+                    st.error(f"🔴 **Score de Saúde: {score}/100** - Situação crítica")
+                
+                # Indicadores de cronograma
+                cronograma = resultado.get('cronograma', {})
+                if cronograma:
+                    st.subheader("⏰ Indicadores de Cronograma")
+                    
+                    col1, col2, col3, col4 = st.columns(4)
+                    with col1:
+                        st.metric("Aderência", f"{cronograma['aderencia_prazo']}%")
+                    with col2:
+                        st.metric("Atrasadas", cronograma['atrasadas'])
+                    with col3:
+                        st.metric("Vencendo", cronograma['vencendo_semana'])
+                    with col4:
+                        st.metric("SLA Validação", f"{cronograma['sla_validacao']} dias")
+                
+                # Previsão de conclusão
+                previsao = resultado.get('previsao_conclusao')
+                if previsao:
+                    st.subheader("🔮 Previsão de Conclusão")
+                    
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        st.info(f"📅 **Planejado:** {previsao['data_planejada'].strftime('%d/%m/%Y')}")
+                    with col2:
+                        if previsao['dias_adicao'] > 0:
+                            st.warning(f"⚠️ **Previsto:** {previsao['data_prevista'].strftime('%d/%m/%Y')} (+{previsao['dias_adicao']} dias)")
+                        else:
+                            st.success(f"✅ **Previsto:** {previsao['data_prevista'].strftime('%d/%m/%Y')} (no prazo)")
+                
+                # Recomendações
+                recomendacoes = resultado.get('recomendacoes', [])
+                if recomendacoes:
+                    st.subheader("💡 Recomendações Prioritárias")
+                    
+                    for i, rec in enumerate(recomendacoes[:3], 1):
+                        prioridade_emoji = {'crítica': '🔴', 'alta': '🟠', 'media': '🟡', 'baixa': '🟢'}
+                        emoji = prioridade_emoji.get(rec['prioridade'], '🔵')
+                        
+                        with st.expander(f"{emoji} **{rec['categoria']}** - {rec['prioridade'].title()}", expanded=True):
+                            st.write(f"**Ação:** {rec['acao']}")
+                            st.write(f"**Impacto:** {rec['impacto']}")
+                            if 'prazo' in rec:
+                                st.write(f"**Prazo:** {rec['prazo']}")
+                
+                st.caption("🔧 Análise offline avançada com indicadores de cronograma | 100% PRIVADO")
+                
+        else:
+            st.error(f"❌ {resultado.get('erro', 'Erro desconhecido')}")
+            
+            # Sugestões baseadas no tipo de erro
+            erro_msg = resultado.get('erro', '')
+            if 'API Key' in erro_msg or '401' in erro_msg:
+                st.info("💡 **Dica:** Verifique se sua API Key da Anthropic está correta em console.anthropic.com")
+            elif 'quota' in erro_msg.lower() or 'limit' in erro_msg.lower():
+                st.info("💡 **Dica:** Limite de API atingido. Aguarde ou use a análise offline.")
+            elif 'timeout' in erro_msg.lower():
+                st.info("💡 **Dica:** Timeout na requisição. Tente novamente ou use modelo mais rápido (Haiku).")
+
+# ============================================
+# 📱 INTERFACE PRINCIPAL - CORRIGIDA
+# ============================================
+
 def main():
-    """Função principal do dashboard híbrido v5 com autenticação"""
+    """Função principal do dashboard híbrido v5 com autenticação - CORRIGIDA"""
     
     # ============================================
     # 🔐 VERIFICAÇÃO DE AUTENTICAÇÃO
@@ -1438,7 +2069,7 @@ def main():
             st.metric(
                 "Atrasadas",
                 atrasadas,
-                delta="Crítico!" if atrasadas > 5 else "OK"
+                delta=f"-{atrasadas}" if atrasadas > 0 else "OK"
             )
         except:
             st.metric("Atrasadas", "N/A")
@@ -1500,7 +2131,7 @@ def main():
                     st.metric("Aderência aos Prazos", f"{cronograma_info['aderencia_prazo']}%")
     
     # ============================================
-    # 📊 GRÁFICOS ORIGINAIS
+    # 📊 GRÁFICOS ORIGINAIS + DIMENSÕES
     # ============================================
     
     st.markdown("---")
@@ -1511,7 +2142,7 @@ def main():
     
     with col1:
         try:
-            fig_rosca = criar_rosca_status(df_filtrado)
+            fig_rosca = criar_rosca_status(df_filtrado)  # 🔧 Função melhorada
             st.plotly_chart(fig_rosca, use_container_width=True)
         except Exception as e:
             st.error("⚠️ Erro no gráfico de status")
@@ -1522,8 +2153,14 @@ def main():
             st.plotly_chart(fig_barras, use_container_width=True)
         except Exception as e:
             st.error("⚠️ Erro no gráfico de fases")
-         
-
+    
+    # 🔧 NOVO: Linha 2 - Gráfico de Dimensões (ADICIONADO)
+    st.subheader("🎯 Análise por Dimensões")
+    try:
+        fig_dimensoes = criar_grafico_dimensoes(df_filtrado)
+        st.plotly_chart(fig_dimensoes, use_container_width=True)
+    except Exception as e:
+        st.error(f"⚠️ Erro no gráfico de dimensões: {e}")
     
     # ============================================
     # 🧠 ANÁLISE INTELIGENTE HÍBRIDA
@@ -1532,9 +2169,8 @@ def main():
     widget_analise_hibrida(df_filtrado, metricas_filtradas, api_key, modelo)
     
     # ============================================
-    # 📋 TABELA DETALHADA COM NOVAS COLUNAS
+    # 📋 TABELA DETALHADA COM CORREÇÃO DIMENSÕES
     # ============================================
-
     
     st.markdown("---")
     st.subheader("📋 Lista Detalhada de Atividades")
@@ -1544,28 +2180,15 @@ def main():
         try:
             df_tabela = analisador.processar_datas(df_filtrado).copy()
             
-            # Preparar colunas para exibição
-            colunas_exibir = ['id', 'fase', 'atividade', 'status', 'responsavel', 'data_prevista', 'progresso','delivery']
+            # 🔧 CORRIGIDO: Incluir 'Dimensões' nas colunas
+            colunas_exibir = ['id', 'fase', 'atividade', 'status', 'responsavel', 'data_prevista', 'progresso', 'delivery', 'Dimensões']
             
             # Adicionar coluna de situação do prazo
             if 'dias_para_prazo' in df_tabela.columns:
-                def situacao_prazo(row):
-                    if row['status'] == 'Concluído':
-                        return '✅ Concluído'
-                    elif pd.isna(row['dias_para_prazo']) or row['dias_para_prazo'] is None:
-                        return '⚪ Sem data'
-                    elif row['dias_para_prazo'] < 0:
-                        return f'🔴 Atrasado {abs(int(row["dias_para_prazo"]))} dias'
-                    elif row['dias_para_prazo'] <= 7:
-                        return f'🟡 Vence em {int(row["dias_para_prazo"])} dias'
-                    else:
-                        return f'🟢 {int(row["dias_para_prazo"])} dias'
-                
-                df_tabela['situacao_prazo'] = df_tabela.apply(situacao_prazo, axis=1)
+                df_tabela['situacao_prazo'] = df_tabela.apply(situacao_prazo_com_cores, axis=1)  # 🔧 Função corrigida
                 colunas_exibir.append('situacao_prazo')
-            
            
-# Exibir tabela
+            # Exibir tabela
             st.dataframe(
                 df_tabela[colunas_exibir],
                 column_config={
@@ -1583,6 +2206,7 @@ def main():
                         max_value=100
                     ),
                     'delivery': 'Delivery',
+                    'Dimensões': 'Dimensões',  # 🔧 ADICIONADO
                     'situacao_prazo': 'Situação do Prazo'
                 },
                 hide_index=True,
@@ -1590,7 +2214,7 @@ def main():
             )
         except Exception as e:
             st.error(f"⚠️ Erro ao processar tabela: {e}")
-            # Fallback: tabela simples sem processamento de datas
+            # Fallback: tabela simples
             colunas_basicas = ['id', 'fase', 'atividade', 'status', 'responsavel']
             if 'data_prevista' in df_filtrado.columns:
                 colunas_basicas.append('data_prevista')
@@ -1598,8 +2222,11 @@ def main():
                 colunas_basicas.append('progresso')
             if 'delivery' in df_filtrado.columns:
                 colunas_basicas.append('delivery')
+            if 'Dimensões' in df_filtrado.columns:  # 🔧 ADICIONADO
+                colunas_basicas.append('Dimensões')
             
             st.dataframe(df_filtrado[colunas_basicas], use_container_width=True)
+    
     # ============================================
     # 📈 RESUMO EXECUTIVO v5
     # ============================================
