@@ -1521,6 +1521,7 @@ def main():
             fig_barras = criar_barras_fase(df_filtrado)
             st.plotly_chart(fig_barras, use_container_width=True)
         except Exception as e:
+            st.error("⚠️ Erro no gráfico de fases")
          
 
     
