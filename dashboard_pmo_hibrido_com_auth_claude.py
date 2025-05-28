@@ -407,7 +407,7 @@ def carregar_dados():
         df = pd.read_excel('atividades_pmo.xlsx', sheet_name='Atividades')
         
         # Validar colunas obrigatórias (incluindo nova data_prevista)
-        colunas_obrigatorias = ['id', 'fase', 'atividade', 'status', 'responsavel', 'data_prevista', 'progresso', 'peso']
+        colunas_obrigatorias = ['id', 'fase', 'atividade', 'status', 'responsavel', 'data_prevista', 'progresso', 'peso''Delivery', 'Dimensões']
         
         if not all(col in df.columns for col in colunas_obrigatorias):
             st.error("❌ Arquivo Excel não tem as colunas corretas!")
@@ -429,12 +429,12 @@ def carregar_dados():
 
 def carregar_dados_exemplo():
     """Dados de exemplo com novos campos"""
-    dados_exemplo = [
-        {"id": "1.1", "fase": "Marco Inicial", "atividade": "Kick-Off", "status": "Concluído", "responsavel": "OnSet", "data_prevista": "2025-02-12", "progresso": 100, "peso": 1.0, "observacoes": "Realizado"},
-        {"id": "2.1", "fase": "Fase 1", "atividade": "Diagnóstico", "status": "Aguardando Validação", "responsavel": "Deutsche", "data_prevista": "2025-04-07", "progresso": 80, "peso": 0.8, "observacoes": "Aguarda validação"},
-        {"id": "2.2", "fase": "Fase 1", "atividade": "Análise Gaps", "status": "Em Andamento", "responsavel": "OnSet", "data_prevista": "2025-05-30", "progresso": 50, "peso": 0.5, "observacoes": "Em progresso"},
-        {"id": "3.1", "fase": "Fase 2", "atividade": "Estruturação", "status": "Identificado", "responsavel": "A Definir", "data_prevista": "2025-06-30", "progresso": 0, "peso": 0.0, "observacoes": "Pendente"},
-    ]
+dados_exemplo = [
+    {"id": "1.1", "fase": "Marco Inicial", "atividade": "Kick-Off", "status": "Concluído", "responsavel": "OS", "data_prevista": "2025-02-12", "progresso": 100, "peso": 1.0, "observacoes": "Realizado", "Delivery": "Sprint 1", "Dimensões": "Processos"},
+    {"id": "2.1", "fase": "Fase 1", "atividade": "Diagnóstico", "status": "Aguardando Validação", "responsavel": "DT", "data_prevista": "2025-04-07", "progresso": 80, "peso": 0.8, "observacoes": "Aguarda validação", "Delivery": "Sprint 2", "Dimensões": "Tecnologia"},
+    {"id": "2.2", "fase": "Fase 1", "atividade": "Análise Gaps", "status": "Em Andamento", "responsavel": "OS", "data_prevista": "2025-05-30", "progresso": 50, "peso": 0.5, "observacoes": "Em progresso", "Delivery": "Sprint 3", "Dimensões": "Pessoas"},
+    {"id": "3.1", "fase": "Fase 2", "atividade": "Estruturação", "status": "Identificado", "responsavel": "A Definir", "data_prevista": "2025-06-30", "progresso": 0, "peso": 0.0, "observacoes": "Pendente", "Delivery": "Sprint 4", "Dimensões": "Governança"},
+]
     return pd.DataFrame(dados_exemplo)
 
 def calcular_metricas(df):
@@ -1443,6 +1443,41 @@ def main():
             st.plotly_chart(fig_barras, use_container_width=True)
         except Exception as e:
             st.error("⚠️ Erro no gráfico de fases")
+
+# ============================================
+# 🎯 ANÁLISE POR DIMENSÕES
+# ============================================
+
+st.markdown("---")
+st.subheader("🎯 Análise por Dimensões")
+
+if not df_filtrado.empty and 'Dimensões' in df_filtrado.columns:
+    col1, col2 = st.columns([2, 1])
+    
+    with col1:
+        try:
+            fig_dimensoes = criar_grafico_dimensoes(df_filtrado)
+            st.plotly_chart(fig_dimensoes, use_container_width=True)
+        except Exception as e:
+            st.error("⚠️ Erro no gráfico de dimensões")
+    
+    with col2:
+        # Métricas de dimensões
+        df_dim = df_filtrado.dropna(subset=['Dimensões'])
+        if not df_dim.empty:
+            total_dimensoes = df_dim['Dimensões'].nunique()
+            st.metric("Total de Dimensões", total_dimensoes)
+            
+            dimensao_mais_comum = df_dim['Dimensões'].mode().iloc[0] if len(df_dim) > 0 else "N/A"
+            st.metric("Dimensão Principal", dimensao_mais_comum)
+            
+            sem_dimensao = df_filtrado['Dimensões'].isna().sum()
+            st.metric("Sem Dimensão", sem_dimensao)
+        else:
+            st.warning("⚠️ Nenhuma dimensão definida")
+else:
+    st.warning("⚠️ Campo 'Dimensões' não encontrado na tabela")
+
     
     # ============================================
     # 🧠 ANÁLISE INTELIGENTE HÍBRIDA
@@ -1463,7 +1498,7 @@ def main():
             df_tabela = analisador.processar_datas(df_filtrado).copy()
             
             # Preparar colunas para exibição
-            colunas_exibir = ['id', 'fase', 'atividade', 'status', 'responsavel', 'data_prevista', 'progresso']
+            colunas_exibir = ['id', 'fase', 'atividade', 'status', 'responsavel', 'data_prevista', 'progresso','Delivery']
             
             # Adicionar coluna de situação do prazo
             if 'dias_para_prazo' in df_tabela.columns:
@@ -1483,27 +1518,28 @@ def main():
                 colunas_exibir.append('situacao_prazo')
             
             # Exibir tabela
-            st.dataframe(
-                df_tabela[colunas_exibir],
-                column_config={
-                    'id': 'ID',
-                    'fase': 'Fase',
-                    'atividade': 'Atividade',
-                    'status': 'Status',
-                    'responsavel': 'Responsável',
-                    'data_prevista': st.column_config.DateColumn('Data Prevista'),
-                    'progresso': st.column_config.ProgressColumn(
-                        'Progresso',
-                        help='Percentual de conclusão',
-                        format='%d%%',
-                        min_value=0,
-                        max_value=100
-                    ),
-                    'situacao_prazo': 'Situação do Prazo'
-                },
-                hide_index=True,
-                use_container_width=True
-            )
+st.dataframe(
+    df_tabela[colunas_exibir],
+    column_config={
+        'id': 'ID',
+        'fase': 'Fase',
+        'atividade': 'Atividade',
+        'status': 'Status',
+        'responsavel': 'Responsável',
+        'data_prevista': st.column_config.DateColumn('Data Prevista'),
+        'progresso': st.column_config.ProgressColumn(
+            'Progresso',
+            help='Percentual de conclusão',
+            format='%d%%',
+            min_value=0,
+            max_value=100
+        ),
+        'Delivery': 'Delivery',
+        'situacao_prazo': 'Situação do Prazo'
+    },
+    hide_index=True,
+    use_container_width=True
+)
         except Exception as e:
             st.error(f"⚠️ Erro ao processar tabela: {e}")
             # Fallback: tabela simples sem processamento de datas
