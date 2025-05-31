@@ -8,11 +8,6 @@ from datetime import datetime, timedelta
 import openpyxl
 
 # ============================================
-# 🔐 IMPORT AUTHENTICATION
-# ============================================
-import auth
-
-# ============================================
 # 🔧 PAGE CONFIGURATION
 # ============================================
 
@@ -146,24 +141,24 @@ def calculate_schedule_indicators(df):
     # Activities by deadline situation
     overdue = len(df_with_dates[
         (df_with_dates['days_to_deadline'] < 0) & 
-        (df_with_dates['status'] != 'Concluído')  # 🔧 CORREÇÃO: status em português
+        (df_with_dates['status'] != 'Concluído')
     ])
     
     due_this_week = len(df_with_dates[
         (df_with_dates['days_to_deadline'] >= 0) & 
         (df_with_dates['days_to_deadline'] <= 7) &
-        (df_with_dates['status'] != 'Concluído')  # 🔧 CORREÇÃO: status em português
+        (df_with_dates['status'] != 'Concluído')
     ])
     
     future = len(df_with_dates[
         (df_with_dates['days_to_deadline'] > 7) &
-        (df_with_dates['status'] != 'Concluído')  # 🔧 CORREÇÃO: status em português
+        (df_with_dates['status'] != 'Concluído')
     ])
     
     # Schedule adherence (% of activities on time)
-    completed = len(df_with_dates[df_with_dates['status'] == 'Concluído'])  # 🔧 CORREÇÃO: status em português
+    completed = len(df_with_dates[df_with_dates['status'] == 'Concluído'])
     on_time = len(df_with_dates[
-        (df_with_dates['status'] != 'Concluído') &  # 🔧 CORREÇÃO: status em português
+        (df_with_dates['status'] != 'Concluído') & 
         (df_with_dates['days_to_deadline'] >= 0)
     ])
     
@@ -172,7 +167,7 @@ def calculate_schedule_indicators(df):
     # Average delay days
     overdue_activities = df_with_dates[
         (df_with_dates['days_to_deadline'] < 0) & 
-        (df_with_dates['status'] != 'Concluído')  # 🔧 CORREÇÃO: status em português
+        (df_with_dates['status'] != 'Concluído')
     ]
     
     if len(overdue_activities) > 0:
@@ -281,7 +276,7 @@ def create_status_donut(df):
     
     status_counts = df['status'].value_counts()
     
-    # 🔧 CORREÇÃO: Mapeamento de cores para status em português
+    # Mapeamento de cores para status em português
     status_colors = {
         'Concluído': '#E20074',           # Magenta principal - Completed
         'Em Andamento': '#F066A7',        # Magenta claro - In Progress
@@ -300,7 +295,7 @@ def create_status_donut(df):
         textfont_size=10,
         textposition="outside",
         hovertemplate='<b>%{label}</b><br>Quantity: %{value}<br>Percentage: %{percent}<extra></extra>',
-        pull=[0.05 if status == 'Concluído' else 0.02 for status in status_counts.index]  # 🔧 CORREÇÃO: destaque para "Concluído"
+        pull=[0.05 if status == 'Concluído' else 0.02 for status in status_counts.index]
     )])
     
     # Center text
@@ -518,164 +513,9 @@ def create_adherence_gauge(df):
     fig.update_layout(height=400, margin=dict(t=80, b=40, l=40, r=40))
     return fig
 
-def create_timeline_roadmap(df):
-    """Create timeline roadmap by phase"""
-    
-    if df.empty:
-        return go.Figure().add_annotation(text="No data available", x=0.5, y=0.5)
-    
-    try:
-        # Process data with robust checks
-        df_processed = process_dates(df)
-        
-        if 'data_prevista' not in df_processed.columns:
-            return go.Figure().add_annotation(text="'data_prevista' field not found", x=0.5, y=0.5)
-        
-        # Remove rows with null dates
-        df_valid = df_processed.dropna(subset=['data_prevista']).copy()
-        
-        if df_valid.empty:
-            return go.Figure().add_annotation(text="No valid dates found", x=0.5, y=0.5)
-        
-        # Convert explicitly to datetime
-        df_valid['data_dt'] = pd.to_datetime(df_valid['data_prevista'], errors='coerce')
-        df_valid = df_valid.dropna(subset=['data_dt'])
-        
-        if df_valid.empty:
-            return go.Figure().add_annotation(text="Error in date conversion", x=0.5, y=0.5)
-        
-        # Group by phase
-        phase_summary = []
-        
-        for phase in df_valid['fase'].unique():
-            df_phase = df_valid[df_valid['fase'] == phase]
-            
-            # Calculate min/max dates of phase
-            start_date = df_phase['data_dt'].min()
-            end_date = df_phase['data_dt'].max()
-            
-            # Calculate phase progress
-            total_activities = len(df_phase)
-            total_weight = df_phase['peso'].sum()
-            phase_progress = (total_weight / total_activities) * 100 if total_activities > 0 else 0
-            
-            phase_summary.append({
-                'phase': phase,
-                'start_date': start_date,
-                'end_date': end_date,
-                'progress': min(phase_progress, 100),  # Limit to 100%
-                'total_activities': total_activities
-            })
-        
-        if not phase_summary:
-            return go.Figure().add_annotation(text="No phases processed", x=0.5, y=0.5)
-        
-        # Create chart
-        fig = go.Figure()
-        
-        for i, phase_info in enumerate(phase_summary):
-            phase = phase_info['phase']
-            start_date = phase_info['start_date']
-            end_date = phase_info['end_date']
-            progress = phase_info['progress']
-            
-            # Gray line - planned schedule (100%)
-            fig.add_trace(go.Scatter(
-                x=[start_date, end_date],
-                y=[phase, phase],
-                mode='lines',
-                line=dict(width=20, color='rgba(180, 180, 180, 0.7)'),
-                name='Planned' if i == 0 else '',
-                showlegend=True if i == 0 else False,
-                hovertemplate=f'<b>Planned</b><br>Phase: {phase}<br>Complete period<extra></extra>'
-            ))
-            
-            # Calculate progress endpoint
-            total_duration = (end_date - start_date).total_seconds()
-            progress_duration = total_duration * (progress / 100)
-            progress_date = start_date + pd.Timedelta(seconds=progress_duration)
-            
-            # Determine color based on progress
-            if progress >= 80:
-                progress_color = '#28a745'  # Green
-                status = 'On time'
-            elif progress >= 50:
-                progress_color = '#ffc107'  # Yellow
-                status = 'Attention'
-            else:
-                progress_color = '#dc3545'  # Red
-                status = 'Delayed'
-            
-            # Colored line - actual progress
-            fig.add_trace(go.Scatter(
-                x=[start_date, progress_date],
-                y=[phase, phase],
-                mode='lines',
-                line=dict(width=20, color=progress_color),
-                name='Actual' if i == 0 else '',
-                showlegend=True if i == 0 else False,
-                hovertemplate=f'<b>Actual</b><br>Phase: {phase}<br>Progress: {progress:.1f}%<br>Status: {status}<extra></extra>'
-            ))
-            
-            # Marker with percentage
-            fig.add_trace(go.Scatter(
-                x=[progress_date],
-                y=[phase],
-                mode='markers+text',
-                marker=dict(size=15, color=progress_color, symbol='circle'),
-                text=[f'{progress:.0f}%'],
-                textposition="middle right",
-                textfont=dict(size=12, color='black', family='Arial Black'),
-                showlegend=False,
-                hovertemplate=f'<b>{phase}</b><br>Current progress: {progress:.1f}%<extra></extra>'
-            ))
-        
-        # Add vertical line for "TODAY"
-        try:
-            today = pd.Timestamp.now()
-            fig.add_vline(
-                x=today,
-                line_dash="dash",
-                line_color="#E20074",
-                line_width=3,
-                annotation_text="TODAY",
-                annotation_position="top",
-                annotation_font_size=12,
-                annotation_font_color="#E20074"
-            )
-        except:
-            pass
-        
-        # Chart layout
-        fig.update_layout(
-            title='🗺️ Timeline: Planned vs Actual',
-            height=400,
-            margin=dict(t=80, b=40, l=200, r=100),
-            xaxis_title="Timeline",
-            yaxis_title="Phases",
-            legend=dict(
-                orientation="h",
-                yanchor="bottom",
-                y=1.02,
-                xanchor="center",
-                x=0.5
-            ),
-            hovermode='closest'
-        )
-        
-        return fig
-        
-    except Exception as e:
-        error_msg = f"Error creating roadmap: {str(e)}"
-        return go.Figure().add_annotation(
-            text="Error processing roadmap<br>Check input data", 
-            x=0.5, y=0.5,
-            font_size=14
-        )
-
 def deadline_situation_with_colors(row):
     """Function to determine deadline situation with colors"""
-    if row['status'] == 'Concluído':  # 🔧 CORREÇÃO: status em português
+    if row['status'] == 'Concluído':
         return '✅ Completed'
     elif pd.isna(row['days_to_deadline']) or row['days_to_deadline'] is None:
         return '⚪ No date'
@@ -693,17 +533,6 @@ def deadline_situation_with_colors(row):
 def main():
     """Main dashboard function"""
     
-    # ============================================
-    # 🔐 AUTHENTICATION CHECK
-    # ============================================
-    
-    if not auth.login_user():
-        return
-    
-    # ============================================
-    # 📊 MAIN DASHBOARD
-    # ============================================
-    
     # Load data
     df = load_data()
     
@@ -715,7 +544,7 @@ def main():
     
     # Main title
     st.title("📊 PMO - Digital Transformation Program")
-    st.markdown("**Project Management Dashboard - Visualization Focus**")
+    st.markdown("**Project Management Dashboard - Embedded Version**")
     
     # Sidebar
     df_filtered = create_sidebar(df, metrics)
@@ -751,7 +580,6 @@ def main():
         )
     
     with col3:
-        # 🔧 CORREÇÃO: Procurar por "Concluído" ao invés de "Completed"
         completed = filtered_metrics['status_counts'].get('Concluído', 0)
         st.metric(
             "Completed", 
@@ -808,38 +636,6 @@ def main():
             st.plotly_chart(fig_adherence, use_container_width=True)
         except Exception as e:
             st.error("⚠️ Error in adherence gauge")
-    
-    # Row 2: Improved Timeline (Planned vs Actual)
-    st.subheader("🗺️ Timeline: Planned vs Actual")
-    try:
-        fig_timeline = create_timeline_roadmap(df_filtered)
-        st.plotly_chart(fig_timeline, use_container_width=True)
-    except Exception as e:
-        st.warning(f"⚠️ Timeline issue: {str(e)}")
-        st.info("🔧 Using alternative visualization:")
-        
-        # Fallback: Show data in tabular format
-        if not df_filtered.empty and 'data_prevista' in df_filtered.columns:
-            try:
-                df_timeline_alt = df_filtered.groupby('fase').agg({
-                    'peso': 'sum',
-                    'progresso': 'count',
-                    'data_prevista': ['min', 'max']
-                }).round(1)
-                
-                df_timeline_alt.columns = ['Total Weight', 'Activities', 'Start Date', 'End Date']
-                df_timeline_alt['Completion %'] = (df_timeline_alt['Total Weight'] / df_timeline_alt['Activities'] * 100).round(1)
-                
-                st.dataframe(df_timeline_alt, use_container_width=True)
-            except:
-                schedule_info = calculate_schedule_indicators(df_filtered)
-                col1, col2, col3 = st.columns(3)
-                with col1:
-                    st.metric("Overdue Activities", schedule_info['overdue'])
-                with col2:
-                    st.metric("Due in 7 days", schedule_info['due_this_week'])
-                with col3:
-                    st.metric("Schedule Adherence", f"{schedule_info['schedule_adherence']}%")
     
     # ============================================
     # 📊 PROJECT OVERVIEW CHARTS
@@ -931,77 +727,6 @@ def main():
                 basic_columns.append('Dimensões')
             
             st.dataframe(df_filtered[basic_columns], use_container_width=True)
-    
-    # ============================================
-    # 📈 EXECUTIVE SUMMARY
-    # ============================================
-    
-    st.markdown("---")
-    st.subheader("📈 Executive Summary")
-    
-    with st.expander("🎯 Key Insights", expanded=True):
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.markdown("""
-            **✅ Dashboard Features:**
-            - 📊 Visual project metrics
-            - ⏰ Advanced schedule indicators
-            - 📅 Visual timeline and roadmap
-            - 🎯 Real-time deadline adherence
-            - 🔮 Project completion tracking
-            - 📱 Responsive design for all devices
-            """)
-        
-        with col2:
-            # Show current schedule status
-            try:
-                schedule = calculate_schedule_indicators(df_filtered)
-                st.markdown(f"""
-                **📊 Current Status:**
-                - ⏰ Adherence: {schedule['schedule_adherence']}%
-                - 🔴 Overdue: {schedule['overdue']}
-                - 🟡 Due Soon: {schedule['due_this_week']}
-                - 📈 Future Activities: {schedule['future']}
-                """)
-            except:
-                st.markdown("""
-                **📊 Current Status:**
-                - ⏰ Processing indicators...
-                - 🔄 Data being analyzed
-                """)
-    
-    with st.expander("🚀 How to Use the Dashboard"):
-        st.markdown("""
-        **📊 Navigation:**
-        1. Use the **sidebar filters** to analyze specific phases, status, or responsible parties
-        2. Monitor **schedule adherence** in real-time
-        3. Track **project timeline** with planned vs actual progress
-        4. Analyze **activity distribution** by dimensions
-        
-        **⏰ Schedule Indicators:**
-        - **Schedule Adherence:** % of activities on time
-        - **Visual Timeline:** Roadmap with actual dates
-        - **Deadline Situation:** Overdue vs Future activities
-        - **Progress Tracking:** Visual progress by phase
-        
-        **📊 Chart Features:**
-        - **Status Distribution:** Visual breakdown of activity status
-        - **Phase Progress:** Horizontal progress bars by phase
-        - **Dimensions Analysis:** Activity distribution by business dimension
-        - **Timeline Roadmap:** Planned vs actual timeline visualization
-        
-        **📋 Data Table:**
-        - **Complete view** of all activities with filtering
-        - **Deadline indicators** with color coding
-        - **Export capabilities** for further analysis
-        
-        **💡 Tips:** 
-        - Use filters in the sidebar for specific analysis
-        - Hover over charts for detailed information
-        - Check the detailed table for comprehensive activity view
-        """)
-
 
 # ============================================
 # 🚀 RUN APPLICATION
